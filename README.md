@@ -2,7 +2,7 @@
 
 **THIS LIBRARY IS STILL IN DEVELOPMENT.**
 
-Guess the gender of a name with the help of the [genderize.io](http://genderize.io).
+Guess the gender of names with the help of the [genderize.io](http://genderize.io).
 
 ```bash
 gem install gendered
