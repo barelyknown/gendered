@@ -11,7 +11,6 @@ module Gendered
 
     def guess!
       response = HTTP.get(url)
-      puts response.body
       case response.code
       when 200
         @names = JSON.parse(response.body).collect do |guess|
