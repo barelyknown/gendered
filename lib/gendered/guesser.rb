@@ -33,7 +33,7 @@ module Gendered
     def url
       url = "http://api.genderize.io/?"
       name_queries = names.collect.with_index do |name, index|
-        "name[#{index}]=#{name}"
+        "name[#{index}]=#{CGI.escape(name.to_s)}"
       end
       url + name_queries.join("&")
     end
