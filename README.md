@@ -1,31 +1,45 @@
 # Gendered
 
-TODO: Write a gem description
+**THIS LIBRARY IS STILL IN DEVELOPMENT.**
 
-## Installation
+Guess the gender of a name with the help of the [genderize.io](http://genderize.io).
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'gendered'
+```bash
+gem install gendered
 ```
 
-And then execute:
+You can guess one name at a time...
+```ruby
+> require 'gendered'
+> name = Gendered::Name.new("Sean")
+> name.gender
+> :not_guessed
+> name.guess!
+=> :male
+> name.male?
+=> true
+> name.female?
+=> false
+> name.probability
+=> "0.99E0"
+> name.sample_size
+=> 967
+```
 
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install gendered
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Contributing
-
-1. Fork it ( https://github.com/[my-github-username]/gendered/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+Or batch up a list of names (which sends only one request to the API)...
+```ruby
+> require 'gendered'
+> name_list = Gendered::NameList.new(["Sean","Theresa"])
+> name_list.guess!
+=> [:male, :female]
+> name_list.collect { |name| name.male? }
+=> [true, false]
+> name_list.collect { |name| name.female? }
+=> [false, true]
+> name_list.collect { |name| name.probability.to_f }
+=> [0.99, 1.0]
+> name_list.collect { |name| name.sample_size }
+=> [967, 370]
+> name_list["Sean"].gender
+=> :male
+```
