@@ -30,5 +30,14 @@ module Gendered
       end
     end
 
+    context "with the name Evat" do
+      let :names do
+        ["Evat"]
+      end
+      it "does not error" do
+        expect{subject.guess!}.to_not raise_error
+      end
+    end
+
   end
 end

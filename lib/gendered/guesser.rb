@@ -11,6 +11,7 @@ module Gendered
 
     def guess!
       response = HTTP.get(url)
+      puts response.body
       case response.code
       when 200
         @names = JSON.parse(response.body).collect do |guess|
@@ -19,6 +20,8 @@ module Gendered
           if name.is_a?(String)
             name = Name.new(guess["name"])
           end
+
+          return name unless guess["gender"]
 
           name.tap do |n|
             n.gender = guess["gender"].to_sym
