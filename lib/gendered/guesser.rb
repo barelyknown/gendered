@@ -20,12 +20,12 @@ module Gendered
             name = Name.new(guess["name"])
           end
 
-          return name unless guess["gender"]
-
           name.tap do |n|
-            n.gender = guess["gender"].to_sym
-            n.probability = guess["probability"]
-            n.sample_size = guess["count"]
+            if guess["gender"]
+              n.gender = guess["gender"].to_sym
+              n.probability = guess["probability"]
+              n.sample_size = guess["count"]
+            end
           end
         end
         self.names
