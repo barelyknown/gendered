@@ -14,7 +14,9 @@ module Gendered
     end
 
     def guess!
-      Guesser.new(names).guess!
+      names.each_slice(100).each do |slice|
+        Guesser.new(slice).guess!
+      end
       names.collect(&:gender)
     end
 

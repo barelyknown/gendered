@@ -4,7 +4,7 @@ module Gendered
       described_class.new values
     end
     let :values do
-      ["Sean","Theresa"]
+      ["Sean","Theresa"] * 50
     end
     describe "#guess!" do
       it "guesses correctly" do
