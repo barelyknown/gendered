@@ -39,5 +39,15 @@ module Gendered
       end
     end
 
+    context "with multiple names that are the same" do
+      let :names do
+        ["Sean","Sean"]
+      end
+      it "guesses them both" do
+        guesses = subject.guess!
+        expect(guesses.collect(&:gender).uniq.size).to eq 1
+      end
+    end
+
   end
 end

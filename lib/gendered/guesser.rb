@@ -13,22 +13,22 @@ module Gendered
       response = HTTP.get(url)
       case response.code
       when 200
-        @names = JSON.parse(response.body).collect do |guess|
-          name = names.find { |n| n.to_s == guess["name"] }
 
-          if name.is_a?(String)
-            name = Name.new(guess["name"])
+        guesses = JSON.parse(response.body)
+
+        names.collect do |name|
+          name = Name.new(name) if name.is_a?(String)
+
+          guess = guesses.find { |g| g["name"] == name.value }
+
+          if guess["gender"]
+            name.gender = guess["gender"].to_sym
+            name.probability = guess["probability"]
+            name.sample_size = guess["count"]
           end
 
-          name.tap do |n|
-            if guess["gender"]
-              n.gender = guess["gender"].to_sym
-              n.probability = guess["probability"]
-              n.sample_size = guess["count"]
-            end
-          end
+          name
         end
-        self.names
       end
     end
 
