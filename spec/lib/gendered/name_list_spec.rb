@@ -13,6 +13,13 @@ module Gendered
         expect(Guesser).to receive(:new).with(subject.names).and_return(guesser)
         subject.guess!
       end
+
+      it 'guesses correctly with country id' do
+        guesser = double(Guesser)
+        expect(guesser).to receive(:guess!).with('us')
+        expect(Guesser).to receive(:new).with(subject.names).and_return(guesser)
+        subject.guess!('us')
+      end
     end
     context "when the values are strings" do
       it "sets the names" do

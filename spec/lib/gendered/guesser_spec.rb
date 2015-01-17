@@ -13,6 +13,11 @@ module Gendered
       expect(subject.names).to eq names
     end
 
+    it "is initialized with country id" do
+      guesser = Guesser.new(names, 'us')
+      expect(guesser.country_id).to eq 'us'
+    end
+
     it "creates the correct url" do
       expect(subject.url).to eq "http://api.genderize.io/?name[0]=Sean&name[1]=Theresa"
     end

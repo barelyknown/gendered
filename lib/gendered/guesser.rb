@@ -1,12 +1,13 @@
 module Gendered
   class Guesser
 
-    attr_accessor :names
+    attr_accessor :names, :country_id
 
-    def initialize(values)
+    def initialize(values, country_id = nil)
       raise ArgumentError, "cannot be empty" if Array(values).empty?
 
       @names = Array(values)
+      @country_id = country_id
     end
 
     def guess!
@@ -34,11 +35,12 @@ module Gendered
 
     def url
       url = "http://api.genderize.io/?"
+      url += "country_id=#{country_id}&" if country_id
+
       name_queries = names.collect.with_index do |name, index|
         "name[#{index}]=#{CGI.escape(name.to_s)}"
       end
       url + name_queries.join("&")
     end
-
   end
 end
