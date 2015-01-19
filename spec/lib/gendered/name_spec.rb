@@ -23,6 +23,12 @@ module Gendered
       it "returns the gender" do
         expect(subject.guess!).to eq :male
       end
+
+      it 'returns gender by country id' do
+        name = Gendered::Name.new('kim')
+        expect(name.guess!).to eq :female
+        expect(name.guess!('dk')).to eq :male
+      end
     end
 
     describe "#gender=" do

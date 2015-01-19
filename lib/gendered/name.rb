@@ -16,8 +16,8 @@ module Gendered
       !!@gender
     end
 
-    def guess!
-      Guesser.new(self).guess!
+    def guess!(country_id = nil)
+      Guesser.new(self, country_id).guess!
       gender
     end
 
