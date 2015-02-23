@@ -19,7 +19,7 @@ module Gendered
     end
 
     it "creates the correct url" do
-      expect(subject.url).to eq "http://api.genderize.io/?name[0]=Sean&name[1]=Theresa"
+      expect(subject.url).to eq "https://api.genderize.io/?name[0]=Sean&name[1]=Theresa"
     end
 
     it "cannot be initialized with an empty array" do

@@ -34,7 +34,7 @@ module Gendered
     end
 
     def url
-      url = "http://api.genderize.io/?"
+      url = "https://api.genderize.io/?"
       url += "country_id=#{country_id}&" if country_id
 
       name_queries = names.collect.with_index do |name, index|
