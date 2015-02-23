@@ -20,7 +20,12 @@ module Gendered
         names.collect do |name|
           name = Name.new(name) if name.is_a?(String)
 
-          guess = guesses.find { |g| g["name"] == name.value }
+          guess = case
+          when guesses.is_a?(Array)
+            guesses.find { |g| g["name"] == name.value }
+          else
+            guesses
+          end
 
           if guess["gender"]
             name.gender = guess["gender"].to_sym
@@ -34,7 +39,7 @@ module Gendered
     end
 
     def url
-      url = "http://api.genderize.io/?"
+      url = "https://api.genderize.io/?"
       url += "country_id=#{country_id}&" if country_id
 
       name_queries = names.collect.with_index do |name, index|
