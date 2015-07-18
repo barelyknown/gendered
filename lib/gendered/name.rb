@@ -1,6 +1,6 @@
 module Gendered
   class Name
-    VALID_GENDERS = %i(male female)
+    VALID_GENDERS = [:male, :female]
 
     attr_reader :value
 
@@ -16,8 +16,8 @@ module Gendered
       !!@gender
     end
 
-    def guess!(country_id = nil)
-      Guesser.new(self, country_id).guess!
+    def guess!(options = {})
+      Guesser.new(self, options).guess!
       gender
     end
 

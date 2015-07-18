@@ -1,22 +1,23 @@
+require "json"
+
 module Gendered
   class Guesser
 
-    attr_accessor :names, :country_id
+    attr_accessor :names, :options
 
-    def initialize(values, country_id = nil)
+    def initialize(values, options = {})
       raise ArgumentError, "cannot be empty" if Array(values).empty?
 
       @names = Array(values)
-      @country_id = country_id
+      @options = Gendered.config.merge(options || {})
+      @options[:connection] ||= {}
     end
 
     def guess!
-      response = HTTP.get(url)
+      response = request(@options[:connection])
+      guesses = parse(response.body)
       case response.code
       when 200
-
-        guesses = JSON.parse(response.body)
-
         names.collect do |name|
           name = Name.new(name) if name.is_a?(String)
 
@@ -35,17 +36,41 @@ module Gendered
 
           name
         end
+      else
+        message = sprintf "%s (%s)", guesses["message"], guesses["code"]
+        raise GenderedError.new(message)
       end
     end
 
+    # TODO: one can just call HTTP.get(url, :params => { ... })
     def url
       url = "https://api.genderize.io/?"
-      url += "country_id=#{country_id}&" if country_id
+      query = []
 
-      name_queries = names.collect.with_index do |name, index|
-        "name[#{index}]=#{CGI.escape(name.to_s)}"
+      [:country_id, :language_id, :apikey].each do |param|
+        next if @options[param].nil?
+        query << sprintf("%s=%s", param.to_s, CGI.escape(@options[param].to_s))
       end
-      url + name_queries.join("&")
+
+      names.each_with_index do |name, index|
+        query << sprintf("name[%s]=%s", index, CGI.escape(name.to_s))
+      end
+
+      url << query.join("&")
+    end
+
+    private
+
+    def request(options)
+      HTTP.get(url, options)
+    rescue => e
+      raise GenderedError, "request failed: #{e}"
+    end
+
+    def parse(response)
+      JSON.parse(response)
+    rescue JSON::ParserError => e
+      raise GenderedError, "cannot parse response JSON: #{e}"
     end
   end
 end

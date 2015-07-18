@@ -1,6 +1,5 @@
 module Gendered
   describe Guesser do
-
     let :names do
       ["Sean","Theresa"]
     end
@@ -13,17 +12,49 @@ module Gendered
       expect(subject.names).to eq names
     end
 
-    it "is initialized with country id" do
-      guesser = Guesser.new(names, 'us')
-      expect(guesser.country_id).to eq 'us'
-    end
-
     it "creates the correct url" do
       expect(subject.url).to eq "https://api.genderize.io/?name[0]=Sean&name[1]=Theresa"
     end
 
     it "cannot be initialized with an empty array" do
       expect{described_class.new([])}.to raise_error ArgumentError
+    end
+
+    describe "options" do
+      [:country_id, :language_id, :apikey].each do |option|
+        context "given the #{option} option" do
+          subject do
+            Guesser.new(names, option => option)
+          end
+
+          it "is initialized correctly" do
+            expect(subject.options[option]).to eq option
+          end
+
+          it "creates the correct url" do
+            param = "#{option}=#{option}"
+            expect(subject.url).to eq "https://api.genderize.io/?#{param}&name[0]=Sean&name[1]=Theresa"
+          end
+        end
+      end
+
+      context "given the :connection option" do
+        subject do
+          options = { :apikey => "key", :connection => { :foo => "bar" } }
+          Guesser.new(names, options)
+        end
+
+        it "is passed to the connection" do
+          response = double(:body => %|{"a":123}|).as_null_object
+          expect(subject).to receive(:request).with(:foo => "bar").and_return(response)
+
+          subject.guess!
+        end
+
+        it "creates the correct url" do
+          expect(subject.url).to eq "https://api.genderize.io/?apikey=key&name[0]=Sean&name[1]=Theresa"
+        end
+      end
     end
 
     describe "#guess!" do

@@ -20,14 +20,29 @@ module Gendered
     end
 
     describe "guess!" do
+      it "sets the gender" do
+        subject.guess!
+        expect(subject.gender).to eq :male
+      end
+
+      it "sets the probability" do
+        subject.guess!
+        expect(subject.probability).to be_a BigDecimal
+      end
+
+      it "sets the sample size" do
+        subject.guess!
+        expect(subject.sample_size).to be_a Integer
+      end
+
       it "returns the gender" do
         expect(subject.guess!).to eq :male
       end
 
-      it 'returns gender by country id' do
-        name = Gendered::Name.new('kim')
+      it "returns gender by country id" do
+        name = Gendered::Name.new("kim")
         expect(name.guess!).to eq :female
-        expect(name.guess!('dk')).to eq :male
+        expect(name.guess!(:country_id => "dk")).to eq :male
       end
     end
 
@@ -38,6 +53,7 @@ module Gendered
           expect(subject.gender).to eq value
         end
       end
+
       it "raises an argument error if the gender is set to something invalid" do
         %w(eunich).each do |value|
           expect{subject.gender = value}.to raise_error(ArgumentError)
