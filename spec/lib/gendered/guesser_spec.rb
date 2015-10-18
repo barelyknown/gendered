@@ -22,6 +22,16 @@ module Gendered
       expect{described_class.new([])}.to raise_error ArgumentError
     end
 
+    it "raises an error when over the rate limit" do
+      response = fake_response(:code => 429, :usage => { :limit => 1, :remaining => 0, :reset => 2 })
+      expect(subject).to receive(:request).and_return(response)
+      expect { subject.guess! }.to raise_error(RateLimitError) { |error|
+        expect(error.remaining).to eq 0
+        expect(error.limit).to eq 1
+        expect(error.reset).to eq 2
+      }
+    end
+
     describe "options" do
       [:country_id, :language_id, :apikey].each do |option|
         context "given the #{option} option" do

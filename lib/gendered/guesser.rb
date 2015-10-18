@@ -6,7 +6,7 @@ module Gendered
     USAGE_HEADERS = {
       "X-Rate-Limit-Limit" => :limit,
       "X-Rate-Limit-Remaining" => :remaining,
-      "X-Rate-Limit-Reset" => :reset
+      "X-Rate-Reset" => :reset
     }.freeze
 
     attr_reader :usage
@@ -28,6 +28,8 @@ module Gendered
       case response.code
       when 200
         create_names(body)
+      when 429
+        raise RateLimitError.new(body["error"], *@usage.values_at(:limit, :remaining, :reset))
       else
         raise GenderedError.new(body["error"])
       end

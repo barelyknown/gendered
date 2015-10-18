@@ -9,6 +9,16 @@ require "gendered/guesser"
 
 module Gendered
   GenderedError = Class.new(StandardError)
+  class RateLimitError < GenderedError
+    attr_reader :limit, :remaining, :reset
+
+    def initialize(message, limit, remaining, reset)
+      super(message)
+      @limit = limit
+      @remaining = remaining
+      @reset = reset
+    end
+  end
 
   class Config < Struct.new(:apikey, :country_id, :language_id, :connection)
     def merge(other)
