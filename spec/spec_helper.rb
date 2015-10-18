@@ -21,7 +21,7 @@ RSpec.configure do |config|
 
     def fake_response(options = {})
       code = options[:code] || 200
-      body = (code == 200 ? SUCCESS_RESPONSE : ERROR_RESPONSE).merge(options[:body] || {})
+      body = (code == 200 ? SUCCESS_RESPONSE : FAILURE_RESPONSE).merge(options[:body] || {})
 
       headers = {}
       usage = options[:usage] || {}
