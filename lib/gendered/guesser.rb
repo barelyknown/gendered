@@ -29,8 +29,7 @@ module Gendered
       when 200
         create_names(body)
       else
-        message = sprintf "%s (%s)", body["message"], body["code"]
-        raise GenderedError.new(message)
+        raise GenderedError.new(body["error"])
       end
     end
 
