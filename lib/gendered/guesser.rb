@@ -3,7 +3,13 @@ require "json"
 module Gendered
   class Guesser
     ENDPOINT = "https://api.genderize.io".freeze
+    USAGE_HEADERS = {
+      "X-Rate-Limit-Limit" => :limit,
+      "X-Rate-Limit-Remaining" => :remaining,
+      "X-Rate-Limit-Reset" => :reset
+    }.freeze
 
+    attr_reader :usage
     attr_accessor :names, :options
 
     def initialize(names, options = {})
@@ -12,38 +18,47 @@ module Gendered
 
       @options = Gendered.config.merge(options || {})
       @options[:connection] ||= {}
+      @usage = { :limit => nil, :remaining => nil, :reset => nil }
     end
 
     def guess!
       response = request(request_options)
-      guesses = parse(response.body)
+      update_usage(response)
+      body = parse(response.body)
       case response.code
       when 200
-        names.collect do |name|
-          name = Name.new(name) if name.is_a?(String)
-
-          guess = case
-          when guesses.is_a?(Array)
-            guesses.find { |g| g["name"] == name.value }
-          else
-            guesses
-          end
-
-          if guess["gender"]
-            name.gender = guess["gender"].to_sym
-            name.probability = guess["probability"]
-            name.sample_size = guess["count"]
-          end
-
-          name
-        end
+        create_names(body)
       else
-        message = sprintf "%s (%s)", guesses["message"], guesses["code"]
+        message = sprintf "%s (%s)", body["message"], body["code"]
         raise GenderedError.new(message)
       end
     end
 
     private
+
+    def update_usage(response)
+      USAGE_HEADERS.each { |header, key| @usage[key] = response[header].to_i }
+    end
+
+    def create_names(guesses)
+      names.collect do |name|
+        name = Name.new(name) if name.is_a?(String)
+        guess = case
+                when guesses.is_a?(Array)
+                  guesses.find { |g| g["name"] == name.value }
+                else
+                  guesses
+                end
+
+        if guess["gender"]
+          name.gender = guess["gender"].to_sym
+          name.probability = guess["probability"]
+          name.sample_size = guess["count"]
+        end
+
+        name
+      end
+    end
 
     def request_options
       options = {}

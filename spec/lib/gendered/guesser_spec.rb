@@ -55,6 +55,28 @@ module Gendered
       end
     end
 
+    describe "#usage" do
+      let :usage do
+        { :limit => nil, :remaining => nil, :reset => nil }
+      end
+
+      it "has no values until a request is made" do
+        expect(subject.usage).to eq usage
+      end
+
+      it "is populated after each request" do
+        usage.keys.each_with_index { |k, i| usage[k] = i }
+        expect(subject).to receive(:request).and_return(fake_response(:usage => usage))
+        subject.guess!
+        expect(subject.usage).to eq usage
+
+        usage.keys.each { |k| usage[k] += 1 }
+        expect(subject).to receive(:request).and_return(fake_response(:usage => usage))
+        subject.guess!
+        expect(subject.usage).to eq usage
+      end
+    end
+
     describe "#guess!" do
       it "returns a valid guesses hash" do
         names = subject.guess!

@@ -22,7 +22,18 @@ RSpec.configure do |config|
     def fake_response(options = {})
       code = options[:code] || 200
       body = (code == 200 ? SUCCESS_RESPONSE : ERROR_RESPONSE).merge(options[:body] || {})
-      double(:code => code, :body => JSON.dump(body))
+
+      headers = {}
+      usage = options[:usage] || {}
+
+      Gendered::Guesser::USAGE_HEADERS.each do |header, key|
+        headers[header] = usage.include?(key) ? usage[key] : header.object_id
+      end
+
+      response = double(:code => code, :body => JSON.dump(body))
+      allow(response).to receive(:[]) { |name| headers[name] }
+
+      response
     end
   }
 end
