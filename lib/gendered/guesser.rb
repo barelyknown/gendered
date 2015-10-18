@@ -2,19 +2,20 @@ require "json"
 
 module Gendered
   class Guesser
+    ENDPOINT = "https://api.genderize.io".freeze
 
     attr_accessor :names, :options
 
-    def initialize(values, options = {})
-      raise ArgumentError, "cannot be empty" if Array(values).empty?
+    def initialize(names, options = {})
+      @names = Array(names)
+      raise ArgumentError, "names cannot be empty" if @names.empty?
 
-      @names = Array(values)
       @options = Gendered.config.merge(options || {})
       @options[:connection] ||= {}
     end
 
     def guess!
-      response = request(@options[:connection])
+      response = request(request_options)
       guesses = parse(response.body)
       case response.code
       when 200
@@ -42,27 +43,18 @@ module Gendered
       end
     end
 
-    # TODO: one can just call HTTP.get(url, :params => { ... })
-    def url
-      url = "https://api.genderize.io/?"
-      query = []
-
-      [:country_id, :language_id, :apikey].each do |param|
-        next if @options[param].nil?
-        query << sprintf("%s=%s", param.to_s, CGI.escape(@options[param].to_s))
-      end
-
-      names.each_with_index do |name, index|
-        query << sprintf("name[%s]=%s", index, CGI.escape(name.to_s))
-      end
-
-      url << query.join("&")
-    end
-
     private
 
+    def request_options
+      options = {}
+      options[:params] = @options.reject { |k, v| k == :connection || v.nil? }
+      options[:params]["name[]"] = @names
+      options[:connection] = @options[:connection] unless @options[:connection].empty?
+      options
+    end
+
     def request(options)
-      HTTP.get(url, options)
+      HTTP.get(ENDPOINT, options)
     rescue => e
       raise GenderedError, "request failed: #{e}"
     end

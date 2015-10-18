@@ -1,7 +1,7 @@
 module Gendered
   describe Guesser do
     let :names do
-      ["Sean","Theresa"]
+      ["Sean", "Theresa"]
     end
 
     subject do
@@ -12,8 +12,10 @@ module Gendered
       expect(subject.names).to eq names
     end
 
-    it "creates the correct url" do
-      expect(subject.url).to eq "https://api.genderize.io/?name[0]=Sean&name[1]=Theresa"
+    it "creates the correct request" do
+      params = { "name[]" => names }
+      expect(subject).to receive(:request).with(:params => params).and_return(fake_response)
+      subject.guess!
     end
 
     it "cannot be initialized with an empty array" do
@@ -31,9 +33,10 @@ module Gendered
             expect(subject.options[option]).to eq option
           end
 
-          it "creates the correct url" do
-            param = "#{option}=#{option}"
-            expect(subject.url).to eq "https://api.genderize.io/?#{param}&name[0]=Sean&name[1]=Theresa"
+          it "creates the correct request" do
+            params = hash_including(:params => { "name[]" => names, option => option })
+            expect(subject).to receive(:request).with(params).and_return(fake_response)
+            subject.guess!
           end
         end
       end
@@ -45,14 +48,9 @@ module Gendered
         end
 
         it "is passed to the connection" do
-          response = double(:body => %|{"a":123}|).as_null_object
-          expect(subject).to receive(:request).with(:foo => "bar").and_return(response)
-
+          params = hash_including(:connection => { :foo => "bar" })
+          expect(subject).to receive(:request).with(params).and_return(fake_response)
           subject.guess!
-        end
-
-        it "creates the correct url" do
-          expect(subject.url).to eq "https://api.genderize.io/?apikey=key&name[0]=Sean&name[1]=Theresa"
         end
       end
     end
@@ -70,8 +68,9 @@ module Gendered
       let :names do
         ["Evat"]
       end
+
       it "does not error" do
-        expect{subject.guess!}.to_not raise_error
+        expect{ subject.guess! }.to_not raise_error
       end
     end
 
@@ -79,6 +78,7 @@ module Gendered
       let :names do
         ["Sean","Sean"]
       end
+
       it "guesses them both" do
         guesses = subject.guess!
         expect(guesses.collect(&:gender).uniq.size).to eq 1
