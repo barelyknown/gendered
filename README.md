@@ -43,3 +43,20 @@ Or batch up a list of names (which sends only one request per hundred names to t
 > name_list["Sean"].gender
 => :male
 ```
+
+Options can be passed in too...
+```ruby
+options = { :apikey => "X123Y456", :country_id => "dk" }
+name = Gendered::Name.new("Sean")
+name.guess!(options)
+name_list = Gendered::NameList.new(["Kim", "Theresa"], options)
+```
+
+Or set globally, as defaults...
+```ruby
+Gendered.configure do |config|
+  config.apikey = "X123Y456"
+  config.language_id = "pt"
+  # ...
+end
+```

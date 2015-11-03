@@ -4,18 +4,20 @@ module Gendered
 
     attr_reader :names
 
-    def initialize(values)
+    def initialize(values, options = {})
       @names = Array(values).collect do |value|
         case value
         when String then Name.new(value)
         when Name then value
         end
       end
+
+      @options = options || {}
     end
 
-    def guess!(country_id = nil)
+    def guess!
       names.each_slice(100).each do |slice|
-        Guesser.new(slice).guess!(country_id)
+        Guesser.new(slice, @options).guess!
       end
       names.collect(&:gender)
     end
