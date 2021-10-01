@@ -65,7 +65,7 @@ module Gendered
       options = {}
       options[:params] = @options.reject { |k, v| k == :connection || v.nil? }
       options[:params]["name[]"] = @names.map(&:to_s)
-      options[:connection] = @options[:connection] unless @options[:connection].empty?
+      options.merge!(@options[:connection]) unless @options[:connection].empty?
       options
     end
 

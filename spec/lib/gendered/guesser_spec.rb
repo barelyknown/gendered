@@ -58,7 +58,7 @@ module Gendered
         end
 
         it "is passed to the connection" do
-          params = hash_including(:connection => { :foo => "bar" })
+          params = hash_including(:foo => "bar")
           expect(subject).to receive(:request).with(params).and_return(fake_response)
           subject.guess!
         end
