@@ -23,6 +23,11 @@ module Gendered
 
     def guess!
       response = request(request_options)
+
+      if response["content-type"] !~ %r{\Aapplication/json\b}
+        raise GenderedError.new("received a non-JSON response with status #{response.code}: #{response.body}")
+      end
+
       update_usage(response)
       body = parse(response.body)
       case response.code
@@ -64,8 +69,8 @@ module Gendered
     def request_options
       options = {}
       options[:params] = @options.reject { |k, v| k == :connection || v.nil? }
-      options[:params]["name[]"] = @names
-      options[:connection] = @options[:connection] unless @options[:connection].empty?
+      options[:params]["name[]"] = @names.map(&:to_s)
+      options.merge!(@options[:connection]) unless @options[:connection].empty?
       options
     end
 

@@ -1,7 +1,5 @@
 # Gendered
 
-**THIS LIBRARY IS STILL IN DEVELOPMENT.**
-
 Guess the gender of names with the help of the [genderize.io](http://genderize.io).
 
 ```bash

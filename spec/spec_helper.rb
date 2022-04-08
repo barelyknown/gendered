@@ -30,7 +30,15 @@ RSpec.configure do |config|
         headers[header] = usage.include?(key) ? usage[key] : header.object_id
       end
 
-      response = double(:code => code, :body => JSON.dump(body))
+      # Must use "content-type" as that's what code checks :( But HTTP lib is case insensitive.
+      if options.include?(:content_type)
+        headers["content-type"] =  options[:content_type]
+        response = double(:code => code, :body => body.to_s)
+      else
+        headers["content-type"] = "application/json; charset=utf-8"
+        response = double(:code => code, :body => JSON.dump(body))
+      end
+
       allow(response).to receive(:[]) { |name| headers[name] }
 
       response
