@@ -23,6 +23,11 @@ module Gendered
 
     def guess!
       response = request(request_options)
+
+      if response["content-type"] !~ %r{\Aapplication/json\b}
+        raise GenderedError.new("received a non-JSON response with status #{response.code}: #{response.body}")
+      end
+
       update_usage(response)
       body = parse(response.body)
       case response.code

@@ -94,26 +94,33 @@ module Gendered
           expect(name).to be_a Name
         end
       end
-    end
 
-    context "with the name Evat" do
-      let :names do
-        ["Evat"]
+      context "when the response's content type is not application/json" do
+        it "raises an error" do
+          expect(subject).to receive(:request).and_return(fake_response(:content_type => "text/html"))
+          expect { subject.guess! }.to raise_error(Gendered::GenderedError, /received a non-JSON response/)
+        end
       end
 
-      it "does not error" do
-        expect{ subject.guess! }.to_not raise_error
-      end
-    end
+      context "with the name Evat" do
+        let :names do
+          ["Evat"]
+        end
 
-    context "with multiple names that are the same" do
-      let :names do
-        ["Sean","Sean"]
+        it "does not error" do
+          expect{ subject.guess! }.to_not raise_error
+        end
       end
 
-      it "guesses them both" do
-        guesses = subject.guess!
-        expect(guesses.collect(&:gender).uniq.size).to eq 1
+      context "with multiple names that are the same" do
+        let :names do
+          ["Sean","Sean"]
+        end
+
+        it "guesses them both" do
+          guesses = subject.guess!
+          expect(guesses.collect(&:gender).uniq.size).to eq 1
+        end
       end
     end
 
